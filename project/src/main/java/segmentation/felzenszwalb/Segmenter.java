@@ -7,7 +7,7 @@ import ij.process.ImageProcessor;
 public class Segmenter {
 
 	public static int DefaultMinSegmentSize = 50; // example
-	public static double DefaultKValue = 1000;
+	public static double DefaultKValue = 10000;
 	public static double DefaultSigma = 0.5;
 	public static int DefaultNumLevels = 4;
 
@@ -36,7 +36,7 @@ public class Segmenter {
 	 * @param ip
 	 *            The image to be segmented
 	 */
-	public ImageProcessor[] segmentImage(ImageProcessor orig) {
+	public ImageProcessor segmentImage(ImageProcessor orig) {
 		final int width = orig.getWidth();
 		final int height = orig.getHeight();
 
@@ -61,35 +61,19 @@ public class Segmenter {
 		// post process small components
 		u.postProcess(minSegmentSize, edges);
 
-		// Hierarchical Graph is TODO made here
-		// kind of iteratively post-process with different min-sizes and save
-		// steps
-		double newKValue;
-		ImageProcessor[] output = new ImageProcessor[numLevels];
-		for (int i = 0; i < numLevels; i++) {
+		// Make new image with colored segments
+		ImageProcessor output = colorSegments(ip, width, height, u);
 
-			// Make new image with colored segments
-			output[i] = colorSegments(ip, width, height, u);
 
-			if (i != numLevels - 1) {
-				newKValue = k_Value - i * k_Value / numLevels;
-				u.joinRegions(num, edges, newKValue, num);
-			}
+	// ------------------------------------------
 
-		}
+	// end = System.currentTimeMillis();
+	// IJ.log("Segmentation and post-processing done, took " + (end - start)
+	// + "milliseconds (including the sorting time)");
+	// IJ.log("Got " + u.getNumSets() + " different segments");
 
-		// ------------------------------------------
+	return output;
 
-		
-
-//		end = System.currentTimeMillis();
-//		IJ.log("Segmentation and post-processing done, took " + (end - start)
-//				+ "milliseconds (including the sorting time)");
-//		IJ.log("Got " + u.getNumSets() + " different segments");
-
-		
-
-		return output;
 	}
 
 	private ImageProcessor colorSegments(ImageProcessor ip, int width, int height, Universe u) {
@@ -142,19 +126,19 @@ public class Segmenter {
 			// freeMemory);
 
 			for (int x = 0; x < width; x++) {
-				if (x < width - 1) {
-					ip.getPixel(x, y, col1);
-					ip.getPixel(x + 1, y, col2);
-					fEdges[num] = new Edge(diff(col1, col2), y * width + x, y * width + (x + 1));
-					num++;
-				}
+//				if (x < width - 1) {
+//					ip.getPixel(x, y, col1);
+//					ip.getPixel(x + 1, y, col2);
+//					fEdges[num] = new Edge(diff(col1, col2), y * width + x, y * width + (x + 1));
+//					num++;
+//				}
 
-				if (y < height - 1) {
-					ip.getPixel(x, y, col1);
-					ip.getPixel(x, y + 1, col2);
-					fEdges[num] = new Edge(diff(col1, col2), y * width + x, (y + 1) * width + x);
-					num++;
-				}
+//				if (y < height - 1) {
+//					ip.getPixel(x, y, col1);
+//					ip.getPixel(x, y + 1, col2);
+//					fEdges[num] = new Edge(diff(col1, col2), y * width + x, (y + 1) * width + x);
+//					num++;
+//				}
 
 				if ((x < width - 1) && (y < height - 1)) {
 					ip.getPixel(x, y, col1);
@@ -169,6 +153,13 @@ public class Segmenter {
 					fEdges[num] = new Edge(diff(col1, col2), y * width + x, (y - 1) * width + (x + 1));
 					num++;
 				}
+				
+//				if ((x > 0) && (y > 0 )) {
+//					ip.getPixel(x, y, col1);
+//					ip.getPixel(x-1,y, col2);
+//					fEdges[num] = new Edge(diff(col1, col2), y * width + x, (y) * width + (x-1));
+//					num++;
+//				}
 				// IJ.log("Edge# " + num);
 			}
 		}

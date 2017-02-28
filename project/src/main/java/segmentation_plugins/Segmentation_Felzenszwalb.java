@@ -4,6 +4,7 @@ import ij.ImagePlus;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
 import imagingbook.lib.util.IjLogStream;
+//import imagingbook.lib.util.IjLogStream;
 import segmentation.felzenszwalb.Segmenter;
 
 /**
@@ -16,6 +17,7 @@ import segmentation.felzenszwalb.Segmenter;
  */
 public class Segmentation_Felzenszwalb implements PlugInFilter {
 
+	// this causes more problems than it provides benefits
 	static {
 		IjLogStream.redirectSystem(); // enable System.out.printkn etc.
 	}
@@ -32,18 +34,17 @@ public class Segmentation_Felzenszwalb implements PlugInFilter {
 	@Override
 	public void run(ImageProcessor ip) {
 
-		// Default Constructor
-		// TODO: Implement UI for adjusting parameters and chose hierarchy to be
-		// shown
-		Segmenter seg = new Segmenter();
-		ImageProcessor[] output = seg.segmentImage(ip);
+		double start = System.currentTimeMillis();
 
-		// probably the worst way to do it
-		// new ImagePlus("Segmented Image", output.getBufferedImage()).show();
-		// WB: no, but simpler:
-		for (int i = 0; i < output.length; i++) {
-			new ImagePlus(imp.getShortTitle() + "-segmented", output[i]).show();
-		}
+		// Default Constructor
+		Segmenter seg = new Segmenter();
+		ImageProcessor output = seg.segmentImage(ip);
+
+		new ImagePlus(imp.getShortTitle() + "-segmented", output).show();
+
+		double end = System.currentTimeMillis();
+		System.out.println("All done, took " + (end - start));
+
 	}
 
 	// remove later
